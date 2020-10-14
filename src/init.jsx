@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import axios from 'axios';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
@@ -10,7 +9,6 @@ import faker from 'faker';
 import Cookies from 'js-cookie';
 import reducers from './reducers';
 import Chat from './components/Chat';
-import routes from './routes';
 import * as actions from './actions';
 import UserContext from './userContext';
 
@@ -19,6 +17,26 @@ const ext = window.__REDUX_DEVTOOLS_EXTENSION__;
 const devtoolMiddleware = ext && ext();
 /* eslint-enable */
 
+const initSocket = (store) => {
+  const socket = io();
+  socket.on('newMessage', (data) => {
+    const { data: { attributes: message } } = data;
+    store.dispatch(actions.receiveMessage({ message }));
+  });
+  socket.on('newChannel', (data) => {
+    const { data: { attributes: channel } } = data;
+    store.dispatch(actions.receiveChannel({ channel }));
+  });
+  socket.on('removeChannel', (data) => {
+    const { data: { id } } = data;
+    store.dispatch(actions.removeChannel({ id }));
+  });
+  socket.on('renameChannel', (data) => {
+    const { data: { attributes: channel } } = data;
+    store.dispatch(actions.renameChannel({ channel }));
+  });
+};
+
 const login = () => {
   if (!Cookies.get('userName')) {
     Cookies.set('userName', faker.internet.userName());
@@ -26,23 +44,25 @@ const login = () => {
   return Cookies.get('userName');
 };
 
+const loadMessages = (channels) => channels.map(actions.fetchMessages);
+
+const initFontAwesome = () => {
+  const script = document.createElement('script');
+  script.src = 'https://kit.fontawesome.com/b96dd7d146.js';
+  script.crossorigin = 'anonymous';
+  document.head.appendChild(script);
+};
+
 export default async (gon) => {
   const {
     channels,
     currentChannelId,
   } = gon;
-  const url = routes.channelMessagesPath(currentChannelId);
-  const res = await axios.get(url);
-  const messages = res.data.data.map(({ attributes }) => ({ ...attributes }));
 
   const preloadedState = {
     channels: {
       byId: _.keyBy(channels, 'id'),
       allIds: channels.map(({ id }) => id),
-    },
-    messages: {
-      byId: _.keyBy(messages, 'id'),
-      allIds: messages.map(({ id }) => id) || [],
     },
     currentChannelId,
   };
@@ -56,11 +76,11 @@ export default async (gon) => {
     ),
   );
 
-  const socket = io();
-  socket.on('newMessage', (data) => {
-    const { data: { attributes: message } } = data;
-    store.dispatch(actions.addMessageSuccess({ message }));
-  });
+  loadMessages(channels);
+
+  initSocket(store);
+
+  initFontAwesome();
 
   render(
     <Provider store={store}>
