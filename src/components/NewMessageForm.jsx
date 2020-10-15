@@ -1,38 +1,51 @@
+import axios from 'axios';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Formik } from 'formik';
+import { Formik, Form } from 'formik';
 import UserContext from '../userContext';
-import * as actions from '../actions';
+import routes from '../routes';
 
 const mapStateToProps = (state) => {
-  const { currentChannelId, messageSendingState } = state;
+  const { currentChannelId } = state;
   return {
     currentChannelId,
-    messageSendingState,
   };
 };
 
-const actionCreators = {
-  sendMessage: actions.sendMessage,
-};
-
 const NewMessageForm = (props) => {
-  const { currentChannelId, messageSendingState, sendMessage } = props;
+  const { currentChannelId } = props;
   return (
     <UserContext.Consumer>
       {({ userName }) => (
         <Formik
           initialValues={{ text: '' }}
-          onSubmit={({ text }) => sendMessage(currentChannelId, { text, author: userName })}
+          initialStatus={{ success: true }}
+          onSubmit={async ({ text }, { setStatus, resetForm }) => {
+            try {
+              const url = routes.channelMessagesPath(currentChannelId);
+              const message = { author: userName, text };
+              await axios.post(url, { data: { attributes: message } });
+              resetForm();
+              setStatus({ success: true });
+            } catch (err) {
+              setStatus({ success: false });
+            }
+          }}
         >
-          {({ handleSubmit, handleChange, values }) => (
-            <form noValidate onSubmit={handleSubmit}>
+          {({
+            handleChange,
+            values,
+            isSubmitting,
+            status,
+          }) => (
+            <Form>
               <div className="form-group">
                 <div className="input-group">
                   <input
                     name="text"
                     type="text"
-                    disabled={messageSendingState === 'requested'}
+                    autoComplete="off"
+                    disabled={isSubmitting}
                     onChange={handleChange}
                     className="mr-2 form-control"
                     value={values.text}
@@ -40,7 +53,7 @@ const NewMessageForm = (props) => {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={messageSendingState === 'requested'}
+                    disabled={isSubmitting}
                   >
                     <span>
                       <i className="fas fa-envelope" />
@@ -48,7 +61,7 @@ const NewMessageForm = (props) => {
                     </span>
                   </button>
                   {
-                    messageSendingState === 'failed' && (
+                    !status.success && (
                       <div className="d-block invalid-feedback">
                         Message sending failed
                       </div>
@@ -56,7 +69,7 @@ const NewMessageForm = (props) => {
                   }
                 </div>
               </div>
-            </form>
+            </Form>
           )}
         </Formik>
       )}
@@ -64,4 +77,4 @@ const NewMessageForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps, actionCreators)(NewMessageForm);
+export default connect(mapStateToProps)(NewMessageForm);

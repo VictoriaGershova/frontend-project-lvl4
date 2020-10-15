@@ -18,21 +18,6 @@ export const fetchMessages = ({ id: channelId }) => async (dispatch) => {
   }
 };
 
-export const sendMessageRequest = createAction('MESSAGES_SEND_REQUEST');
-export const sendMessageSuccess = createAction('MESSAGES_SEND_SUCCESS');
-export const sendMessageFailure = createAction('MESSAGES_SEND_FAILURE');
-
-export const sendMessage = (channelId, message) => async (dispatch) => {
-  dispatch(sendMessageRequest());
-  try {
-    const url = routes.channelMessagesPath(channelId);
-    const res = await axios.post(url, { data: { attributes: message } });
-    dispatch(sendMessageSuccess({ message: res.data.attributes }));
-  } catch (error) {
-    dispatch(sendMessageFailure(error));
-  }
-};
-
 export const receiveMessage = createAction('MESSAGES_RECEIVE');
 
 export const createChannelRequest = createAction('CHANNELS_CREATE_REQUEST');

@@ -9,12 +9,6 @@ const messagesFetchingState = handleActions({
   [actions.fetchMessagesFailure]: () => 'failed',
 }, 'none');
 
-const messageSendingState = handleActions({
-  [actions.sendMessageRequest]: () => 'requested',
-  [actions.sendMessageSuccess]: () => 'finished',
-  [actions.sendMessageFailure]: () => 'failed',
-}, 'none');
-
 const messages = handleActions({
   [actions.fetchMessagesSuccess]: (state, { payload }) => {
     const { byId, allIds } = state;
@@ -88,7 +82,6 @@ const currentChannelId = handleActions({
 
 export default combineReducers({
   messagesFetchingState,
-  messageSendingState,
   messages,
   channelCreatingState,
   channelUpdatingState,
