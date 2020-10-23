@@ -57,7 +57,7 @@ const channels = handleActions({
     const { byId, allIds } = state;
     return {
       byId: { ...byId, [channel.id]: channel },
-      allIds: [channel.id, ...allIds],
+      allIds: [...allIds, channel.id],
     };
   },
   [actions.renameChannel]: (state, { payload: { channel } }) => {

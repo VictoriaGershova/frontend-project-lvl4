@@ -45,7 +45,7 @@ export const updateChannel = (channelId, newName) => async (dispatch) => {
   dispatch(updateChannelRequest());
   try {
     const url = routes.channelPath(channelId);
-    const res = await axios.post(url, { data: { attributes: { name: newName } } });
+    const res = await axios.patch(url, { data: { attributes: { name: newName } } });
     dispatch(updateChannelSuccess({ channel: res.data.attributes }));
   } catch (error) {
     dispatch(updateChannelFailure(error));
