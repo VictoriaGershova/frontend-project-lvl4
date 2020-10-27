@@ -55,11 +55,13 @@ const channelsSlice = createSlice({
       };
     },
     remove: (state, { payload: { id: channelId } }) => {
-      const { byId, allIds } = state;
+      const { byId, allIds, currentChannelId } = state;
+      const newCurrentChannelId = channelId === currentChannelId ? allIds[0] : currentChannelId;
       return {
         ...state,
         byId: _.omit(byId, channelId),
         allIds: allIds.filter((id) => id !== channelId),
+        currentChannelId: newCurrentChannelId,
       };
     },
     updateCurrentChannelId: (state, { payload: { id } }) => ({
