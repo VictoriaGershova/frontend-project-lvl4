@@ -6,7 +6,7 @@ import UserContext from '../userContext';
 import routes from '../routes';
 
 const mapStateToProps = (state) => {
-  const { currentChannelId } = state;
+  const { channels: { currentChannelId } } = state;
   return {
     currentChannelId,
   };

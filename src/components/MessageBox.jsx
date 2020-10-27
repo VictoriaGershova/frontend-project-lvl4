@@ -2,7 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state) => {
-  const { messages: { byId, allIds }, currentChannelId } = state;
+  const {
+    messages: { byId, allIds },
+    channels: { currentChannelId },
+  } = state;
   return {
     messages: allIds
       .filter((id) => byId[id].channelId === currentChannelId)

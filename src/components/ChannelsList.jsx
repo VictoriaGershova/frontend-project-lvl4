@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
-import * as actions from '../actions';
+import * as actions from '../slices/channels';
 import getModal from './ChannelModals';
 
 const mapStateToProps = (state) => {
-  const { channels: { byId, allIds }, currentChannelId } = state;
+  const {
+    channels: {
+      byId,
+      allIds,
+      currentChannelId,
+    },
+  } = state;
   const channels = allIds.map((id) => byId[id]);
   return { channels, currentChannelId };
 };
@@ -13,7 +19,7 @@ const mapStateToProps = (state) => {
 const actionCreators = {
   updateCurrentChannelId: actions.updateCurrentChannelId,
   createChannel: actions.createChannel,
-  updateChannel: actions.updateChannel,
+  renameChannel: actions.renameChannel,
   deleteChannel: actions.deleteChannel,
 };
 
@@ -34,7 +40,7 @@ const Channel = (props) => {
     handleRemove,
   } = props;
   const { name, removable } = channel;
-  
+
   const btnClass = cn({
     'btn-primary': isActive,
     'btn-light': !isActive,
@@ -83,7 +89,7 @@ const ChannelsList = (props) => {
     currentChannelId,
     updateCurrentChannelId,
     createChannel,
-    updateChannel,
+    renameChannel,
     deleteChannel,
   } = props;
 
@@ -93,8 +99,8 @@ const ChannelsList = (props) => {
 
   return (
     <>
-      <div className="d-flex mb-2">
-        <span>Channnels</span>
+      <div className="d-flex p-2">
+        <span>Channels</span>
         <button
           type="button"
           className="ml-auto p-0 btn text-primary"
@@ -111,7 +117,7 @@ const ChannelsList = (props) => {
             isActive={channel.id === currentChannelId}
             handleSwitch={() => updateCurrentChannelId({ id: channel.id })}
             handleRemove={() => showModal('removing', () => deleteChannel(channel.id), channel)}
-            handleRename={() => showModal('renaming', (newName) => updateChannel(channel.id, newName), channel)}
+            handleRename={() => showModal('renaming', (newName) => renameChannel({ id: channel.id, newName }), channel)}
           />
         ))}
       </ul>
