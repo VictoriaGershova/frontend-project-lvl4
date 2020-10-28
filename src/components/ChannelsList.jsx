@@ -28,58 +28,74 @@ const renderChannelModal = (modal, hideModal) => {
     return null;
   }
   const ChannelModal = getModal(modal.type);
-  return <ChannelModal onHide={hideModal} action={modal.action} channel={modal.channel} />;
+  return (
+    <ChannelModal
+      onHide={hideModal}
+      action={modal.action}
+      channel={modal.channel}
+    />
+  );
 };
 
-const Channel = (props) => {
+const DefaultChannel = (props) => {
   const {
-    channel,
+    channel: { name: channelName },
     isActive,
-    handleSwitch,
-    handleRename,
-    handleRemove,
+    handlers: { handleSwitch },
   } = props;
-  const { name, removable } = channel;
-
-  const btnClass = cn({
+  const btnColorClass = cn({
     'btn-primary': isActive,
     'btn-light': !isActive,
   });
-
   return (
-    <li className="nav-item">
-      {
-        removable ? (
-          <div className="d-flex mb-2 dropdown btn-group">
-            <button
-              type="button"
-              className={`flex-grow-1 nav-link btn-block text-left btn ${btnClass}`}
-              onClick={handleSwitch}
-            >
-              {name}
-            </button>
-            <button
-              id="channelMenu"
-              type="button"
-              className={`flex-grow-0 dropdown-toggle dropdown-toggle-split btn border-left ${btnClass}`}
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Toggle Dropdown</span>
-            </button>
-            <div className="dropdown-menu" aria-labelledby="channelMenu">
-              <button type="button" className="dropdown-item" onClick={handleRename}>Rename</button>
-              <button type="button" className="dropdown-item" onClick={handleRemove}>Remove</button>
-            </div>
-          </div>
-        ) : (
-          <button type="button" className={`mb-2 nav-link btn-block text-left btn ${btnClass}`} onClick={handleSwitch}>
-            {name}
-          </button>
-        )
-      }
-    </li>
+    <button
+      type="button"
+      className={`mb-2 nav-link btn-block text-left btn ${btnColorClass}`}
+      onClick={handleSwitch}
+    >
+      {channelName}
+    </button>
+  );
+};
+
+const UserChannel = (props) => {
+  const {
+    channel: { name: channelName },
+    isActive,
+    handlers: {
+      handleSwitch,
+      handleRename,
+      handleRemove,
+    },
+  } = props;
+  const btnColorClass = cn({
+    'btn-primary': isActive,
+    'btn-light': !isActive,
+  });
+  return (
+    <div className="d-flex mb-2 dropdown btn-group">
+      <button
+        type="button"
+        className={`flex-grow-1 nav-link btn-block text-left btn ${btnColorClass}`}
+        onClick={handleSwitch}
+      >
+        {channelName}
+      </button>
+      <button
+        id="channelMenu"
+        type="button"
+        className={`flex-grow-0 dropdown-toggle dropdown-toggle-split btn border-left ${btnColorClass}`}
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <span className="sr-only">Toggle Dropdown</span>
+      </button>
+      <div className="dropdown-menu" aria-labelledby="channelMenu">
+        <button type="button" className="dropdown-item" onClick={handleRename}>Rename</button>
+        <button type="button" className="dropdown-item" onClick={handleRemove}>Remove</button>
+      </div>
+    </div>
   );
 };
 
@@ -97,6 +113,12 @@ const ChannelsList = (props) => {
   const hideModal = () => setModal({ type: null, channel: null, action: null });
   const showModal = (type, action, channel = null) => setModal({ type, channel, action });
 
+  const getChannelHandlers = (channel) => ({
+    handleSwitch: () => updateCurrentChannelId({ id: channel.id }),
+    handleRemove: () => showModal('removing', () => deleteChannel(channel.id), channel),
+    handleRename: () => showModal('renaming', (newName) => renameChannel({ id: channel.id, newName }), channel),
+  });
+
   return (
     <>
       <div className="d-flex p-2">
@@ -110,16 +132,20 @@ const ChannelsList = (props) => {
         </button>
       </div>
       <ul className="nav flex-column nav-pills nav-fill">
-        {channels.map((channel) => (
-          <Channel
-            key={channel.id}
-            channel={channel}
-            isActive={channel.id === currentChannelId}
-            handleSwitch={() => updateCurrentChannelId({ id: channel.id })}
-            handleRemove={() => showModal('removing', () => deleteChannel(channel.id), channel)}
-            handleRename={() => showModal('renaming', (newName) => renameChannel({ id: channel.id, newName }), channel)}
-          />
-        ))}
+        {
+          channels.map((channel) => {
+            const Channel = channel.removable ? UserChannel : DefaultChannel;
+            return (
+              <li key={channel.id} className="nav-item">
+                <Channel
+                  channel={channel}
+                  isActive={channel.id === currentChannelId}
+                  handlers={getChannelHandlers(channel)}
+                />
+              </li>
+            );
+          })
+        }
       </ul>
       {renderChannelModal(modal, hideModal)}
     </>
