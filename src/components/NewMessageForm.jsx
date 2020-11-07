@@ -1,14 +1,14 @@
-import axios from 'axios';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Formik, Form } from 'formik';
-import UserContext from '../userContext';
-import routes from '../routes';
+import UserContext from './userContext';
+import { sendMessageByChannelId } from '../api';
+import { getCurrentChannel } from '../slices/channels';
 
 const mapStateToProps = (state) => {
-  const { channels: { currentChannelId } } = state;
+  const currentChannel = getCurrentChannel(state);
   return {
-    currentChannelId,
+    currentChannelId: currentChannel.id,
   };
 };
 
@@ -19,16 +19,15 @@ const NewMessageForm = (props) => {
       {({ userName }) => (
         <Formik
           initialValues={{ text: '' }}
-          initialStatus={{ success: true }}
+          initialStatus={{ isFailed: false }}
           onSubmit={async ({ text }, { setStatus, resetForm }) => {
             try {
-              const url = routes.channelMessagesPath(currentChannelId);
+              setStatus({ isFailed: false });
               const message = { author: userName, text };
-              await axios.post(url, { data: { attributes: message } });
+              await sendMessageByChannelId(currentChannelId, message);
               resetForm();
-              setStatus({ success: true });
-            } catch (err) {
-              setStatus({ success: false });
+            } catch {
+              setStatus({ isFailed: true });
             }
           }}
         >
@@ -61,7 +60,7 @@ const NewMessageForm = (props) => {
                     </span>
                   </button>
                   {
-                    !status.success && (
+                    status.isFailed && (
                       <div className="d-block invalid-feedback">
                         Message sending failed
                       </div>

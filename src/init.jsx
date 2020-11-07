@@ -7,33 +7,45 @@ import faker from 'faker';
 import Cookies from 'js-cookie';
 import { configureStore } from '@reduxjs/toolkit';
 import Chat from './components/Chat';
-import reducer from './slices';
-import * as channelsActions from './slices/channels';
-import * as messagesActions from './slices/messages';
-import UserContext from './userContext';
+import reducer from './slices/rootReducer';
+import {
+  addChannel,
+  renameChannel,
+  removeChannel,
+} from './slices/channels';
+import {
+  fetchMessages,
+  addMessage,
+} from './slices/messages';
+import UserContext from './components/userContext';
 
 /* eslint-disable no-underscore-dangle */
 const ext = window.__REDUX_DEVTOOLS_EXTENSION__;
 const devtoolMiddleware = ext && ext();
 /* eslint-enable */
 
+const loadMessages = (store, channels) => channels.map(
+  ({ id }) => store.dispatch(fetchMessages({ channelId: id })),
+);
+
 const initSocket = (store) => {
   const socket = io();
   socket.on('newMessage', (data) => {
     const { data: { attributes: message } } = data;
-    store.dispatch(messagesActions.add({ message }));
+    store.dispatch(addMessage({ message }));
   });
   socket.on('newChannel', (data) => {
     const { data: { attributes: channel } } = data;
-    store.dispatch(channelsActions.add({ channel }));
+    store.dispatch(addChannel({ channel }));
+    store.dispatch(fetchMessages({ channelId: channel.id }));
   });
   socket.on('removeChannel', (data) => {
     const { data: { id } } = data;
-    store.dispatch(channelsActions.remove({ id }));
+    store.dispatch(removeChannel({ id }));
   });
   socket.on('renameChannel', (data) => {
     const { data: { attributes: channel } } = data;
-    store.dispatch(channelsActions.rename({ channel }));
+    store.dispatch(renameChannel({ channel }));
   });
 };
 
@@ -43,10 +55,6 @@ const login = () => {
   }
   return Cookies.get('userName');
 };
-
-const loadMessages = (store, channels) => channels.map(
-  (c) => store.dispatch(messagesActions.fetchMessages(c)),
-);
 
 const initFontAwesome = () => {
   const script = document.createElement('script');

@@ -1,32 +1,6 @@
 /* eslint no-param-reassign: 0 */
-
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 import _ from 'lodash';
-import * as api from '../api';
-
-export const createChannel = createAsyncThunk(
-  'channels/createStatus',
-  async ({ name }) => {
-    const res = await api.createChannel({ name });
-    return res.data.attributes;
-  },
-);
-
-export const renameChannel = createAsyncThunk(
-  'channels/renameStatus',
-  async ({ id, newName }) => {
-    const res = await api.updateChannelById(id, { name: newName });
-    return res.data.attributes;
-  },
-);
-
-export const deleteChannel = createAsyncThunk(
-  'channels/deleteStatus',
-  async (id) => {
-    const res = await api.deleteChannelById(id);
-    return res.data.id;
-  },
-);
 
 const channelsSlice = createSlice({
   name: 'channels',
@@ -34,86 +8,54 @@ const channelsSlice = createSlice({
     byId: {},
     allIds: [],
     currentChannelId: null,
-    creatingState: 'none',
-    renamingState: 'none',
-    deletingState: 'none',
   },
   reducers: {
-    add: (state, { payload: { channel } }) => {
-      const { byId, allIds } = state;
-      return {
-        ...state,
-        byId: { ...byId, [channel.id]: channel },
-        allIds: [...allIds, channel.id],
-      };
+    addChannel: (state, { payload: { channel } }) => {
+      state.byId[channel.id] = channel;
+      state.allIds.push(channel.id);
     },
-    rename: (state, { payload: { channel } }) => {
-      const { byId } = state;
-      return {
-        ...state,
-        byId: { ...byId, [channel.id]: channel },
-      };
+    renameChannel: (state, { payload: { channel } }) => {
+      state.byId[channel.id] = channel;
     },
-    remove: (state, { payload: { id: channelId } }) => {
+    removeChannel: (state, { payload: { id: channelId } }) => {
       const { byId, allIds, currentChannelId } = state;
       const newCurrentChannelId = channelId === currentChannelId ? allIds[0] : currentChannelId;
-      return {
-        ...state,
-        byId: _.omit(byId, channelId),
-        allIds: allIds.filter((id) => id !== channelId),
-        currentChannelId: newCurrentChannelId,
-      };
+      state.byId = _.omit(byId, channelId);
+      state.allIds = allIds.filter((id) => id !== channelId);
+      state.currentChannelId = newCurrentChannelId;
     },
-    updateCurrentChannelId: (state, { payload: { id } }) => ({
-      ...state,
-      currentChannelId: id,
-    }),
-  },
-  extraReducers: {
-    [createChannel.pending]: (state) => ({
-      ...state,
-      creatingState: 'requested',
-    }),
-    [createChannel.fulfilled]: (state) => ({
-      ...state,
-      creatingState: 'finished',
-    }),
-    [createChannel.rejected]: (state) => ({
-      ...state,
-      creatingState: 'failed',
-    }),
-    [renameChannel.pending]: (state) => ({
-      ...state,
-      renamingState: 'requested',
-    }),
-    [renameChannel.fulfilled]: (state) => ({
-      ...state,
-      renamingState: 'finished',
-    }),
-    [renameChannel.rejected]: (state) => ({
-      ...state,
-      renamingState: 'failed',
-    }),
-    [deleteChannel.pending]: (state) => ({
-      ...state,
-      deletingState: 'requested',
-    }),
-    [deleteChannel.fulfilled]: (state) => ({
-      ...state,
-      deletingState: 'finished',
-    }),
-    [deleteChannel.rejected]: (state) => ({
-      ...state,
-      deletingState: 'failed',
-    }),
+    setCurrentChannel: (state, { payload: { channel } }) => {
+      state.currentChannelId = channel.id;
+    },
   },
 });
 
+export const getCurrentChannel = createSelector(
+  [
+    (state) => state.channels.currentChannelId,
+    (state) => state.channels.byId,
+  ],
+  (currentChannelId, channelsById) => channelsById[currentChannelId],
+);
+
+export const getChannels = createSelector(
+  [
+    (state) => getCurrentChannel(state),
+    (state) => state.channels.allIds,
+    (state) => state.channels.byId,
+  ],
+  (currentChannel, allIds, byId) => allIds.map((id) => (
+    {
+      ...byId[id],
+      isActive: id === currentChannel.id,
+    })),
+);
+
 export const {
-  add,
-  rename,
-  remove,
-  updateCurrentChannelId,
+  addChannel,
+  renameChannel,
+  removeChannel,
+  setCurrentChannel,
 } = channelsSlice.actions;
 
 export default channelsSlice.reducer;
