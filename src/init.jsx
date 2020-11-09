@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import React from 'react';
-import { render } from 'react-dom';
-import { Provider } from 'react-redux';
 import io from 'socket.io-client';
 import faker from 'faker';
 import Cookies from 'js-cookie';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import Chat from './components/Chat';
 import reducer from './slices/rootReducer';
@@ -24,6 +24,13 @@ const ext = window.__REDUX_DEVTOOLS_EXTENSION__;
 const devtoolMiddleware = ext && ext();
 /* eslint-enable */
 
+const login = () => {
+  if (!Cookies.get('userName')) {
+    Cookies.set('userName', faker.internet.userName());
+  }
+  return Cookies.get('userName');
+};
+
 const loadMessages = (store, channels) => channels.map(
   ({ id }) => store.dispatch(fetchMessages({ channelId: id })),
 );
@@ -37,7 +44,6 @@ const initSocket = (store) => {
   socket.on('newChannel', (data) => {
     const { data: { attributes: channel } } = data;
     store.dispatch(addChannel({ channel }));
-    store.dispatch(fetchMessages({ channelId: channel.id }));
   });
   socket.on('removeChannel', (data) => {
     const { data: { id } } = data;
@@ -47,13 +53,6 @@ const initSocket = (store) => {
     const { data: { attributes: channel } } = data;
     store.dispatch(renameChannel({ channel }));
   });
-};
-
-const login = () => {
-  if (!Cookies.get('userName')) {
-    Cookies.set('userName', faker.internet.userName());
-  }
-  return Cookies.get('userName');
 };
 
 const initFontAwesome = () => {
