@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Formik, Form } from 'formik';
 import UserContext from './userContext';
@@ -14,6 +14,10 @@ const mapStateToProps = (state) => {
 
 const NewMessageForm = (props) => {
   const { currentChannelId } = props;
+  const inputRef = useRef();
+  useEffect(() => {
+    inputRef.current.focus();
+  }, [null]);
   return (
     <UserContext.Consumer>
       {({ userName }) => (
@@ -26,8 +30,10 @@ const NewMessageForm = (props) => {
               const message = { author: userName, text };
               await sendMessageByChannelId(currentChannelId, message);
               resetForm();
+              inputRef.current.focus();
             } catch {
               setStatus({ isFailed: true });
+              inputRef.current.focus();
             }
           }}
         >
@@ -44,6 +50,7 @@ const NewMessageForm = (props) => {
                     name="text"
                     type="text"
                     autoComplete="off"
+                    ref={inputRef}
                     disabled={isSubmitting}
                     onChange={handleChange}
                     className="mr-2 form-control"
@@ -55,17 +62,21 @@ const NewMessageForm = (props) => {
                     disabled={isSubmitting}
                   >
                     <span>
-                      <i className="fas fa-envelope" />
+                      {isSubmitting ? (
+                        <span
+                          className="spinner-border spinner-border-sm mr-1"
+                          role="status"
+                          aria-hidden="true"
+                        />
+                      ) : <i className="fas fa-envelope" />}
                       {' Send'}
                     </span>
                   </button>
-                  {
-                    status.isFailed && (
-                      <div className="d-block invalid-feedback">
-                        Message sending failed
-                      </div>
-                    )
-                  }
+                  {status.isFailed && (
+                    <div className="d-block invalid-feedback">
+                      Message sending failed
+                    </div>
+                  )}
                 </div>
               </div>
             </Form>

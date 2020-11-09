@@ -29,7 +29,6 @@ const messagesSlice = createSlice({
   extraReducers: {
     [fetchMessages.pending]: (state) => {
       state.fetchingState = 'requested';
-      state.error = null;
     },
     [fetchMessages.fulfilled]: (state, { payload: { messages } }) => {
       state.byId = { ...state.byId, ..._.keyBy(messages, 'id') };
@@ -38,7 +37,6 @@ const messagesSlice = createSlice({
     },
     [fetchMessages.rejected]: (state) => {
       state.fetchingState = 'failed';
-      state.error = 'Network problems. Try again!';
     },
     [removeChannel]: (state, { payload: { id: channelId } }) => {
       const { byId, allIds } = state;

@@ -1,15 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
-import * as yup from 'yup';
 import { renameChannelById } from '../../api';
-
-const channelSchema = yup.object().shape({
-  name: yup.string()
-    .min(2, 'Must be 3 to 20 characters')
-    .max(50, 'Must be 3 to 20 characters')
-    .required('Required'),
-});
+import channelSchema from './validation';
 
 const RenameModal = (props) => {
   const { onHide, channel } = props;
@@ -68,9 +61,19 @@ const RenameModal = (props) => {
               className="btn btn-primary ml-2"
               type="submit"
             >
+              {f.isSubmitting && (
+                <span
+                  className="spinner-border spinner-border-sm mr-1"
+                  role="status"
+                  aria-hidden="true"
+                />
+              )}
               Rename
             </Button>
           </div>
+          {f.status.isFailed && (
+            <div className="text-danger mt-1 p-1">Network error. Try again</div>
+          )}
         </Form>
       </Modal.Body>
     </Modal>

@@ -40,9 +40,19 @@ const RemoveModal = (props) => {
                 className="btn btn-danger ml-2"
                 type="submit"
               >
+                {f.isSubmitting && (
+                <span
+                  className="spinner-border spinner-border-sm mr-1"
+                  role="status"
+                  aria-hidden="true"
+                />
+                )}
                 Yes, delete channel
               </Button>
             </div>
+            {f.status.isFailed && (
+              <div className="text-danger mt-1 p-1">Network error. Try again</div>
+            )}
           </Form.Group>
         </Form>
       </Modal.Body>
