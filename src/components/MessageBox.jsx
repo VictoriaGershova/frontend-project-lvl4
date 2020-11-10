@@ -18,7 +18,7 @@ const MessageBox = (props) => {
   }, [messagesAmount]);
 
   return (
-    <div id="messages-box" className="chat-messages overflow-auto mb-3">
+    <div id="messages-box" className="overflow-auto mb-3">
       {messages.map(({ id, author, text }, ind) => (
         <div
           key={id}

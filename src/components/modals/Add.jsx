@@ -15,8 +15,7 @@ const AddModal = (props) => {
         setStatus({ isFailed: false });
         await addChannel({ name });
         onHide();
-      } catch (err) {
-        console.log(err);
+      } catch {
         setStatus({ isFailed: true });
       }
     },
