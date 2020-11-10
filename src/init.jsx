@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import './rollbar';
 import io from 'socket.io-client';
 import faker from 'faker';
 import Cookies from 'js-cookie';

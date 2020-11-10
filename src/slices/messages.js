@@ -18,7 +18,6 @@ const messagesSlice = createSlice({
   initialState: {
     byId: {},
     allIds: [],
-    fetchingState: 'none',
   },
   reducers: {
     addMessage: (state, { payload: { message } }) => {
@@ -27,16 +26,9 @@ const messagesSlice = createSlice({
     },
   },
   extraReducers: {
-    [fetchMessages.pending]: (state) => {
-      state.fetchingState = 'requested';
-    },
     [fetchMessages.fulfilled]: (state, { payload: { messages } }) => {
       state.byId = { ...state.byId, ..._.keyBy(messages, 'id') };
       state.allIds.push(...messages.map(({ id }) => id));
-      state.fetchingState = 'finished';
-    },
-    [fetchMessages.rejected]: (state) => {
-      state.fetchingState = 'failed';
     },
     [removeChannel]: (state, { payload: { id: channelId } }) => {
       const { byId, allIds } = state;
@@ -56,11 +48,6 @@ export const getCurrentMessages = createSelector(
   (currentChannel, allIds, byId) => allIds
     .filter((id) => byId[id].channelId === currentChannel.id)
     .map((id) => byId[id]),
-);
-
-export const getFetchingState = createSelector(
-  (state) => state.messages.fetchingState,
-  (fetchingState) => fetchingState,
 );
 
 export default messagesSlice.reducer;
