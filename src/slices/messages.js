@@ -27,7 +27,7 @@ const messagesSlice = createSlice({
       state.items.push(...messages);
     },
     [removeChannel]: (state, { payload: { id: removedChannelId } }) => {
-      state.items = state.items.filter(({ channelId }) => channelId !== removedChannelId)
+      state.items = state.items.filter(({ channelId }) => channelId !== removedChannelId);
     },
   },
 });
