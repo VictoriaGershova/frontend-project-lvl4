@@ -73,7 +73,7 @@ const NewMessageForm = (props) => {
                     </span>
                   </button>
                   {status.isFailed && (
-                    <div className="d-block invalid-feedback">
+                    <div className="invalid-feedback">
                       Message sending failed
                     </div>
                   )}

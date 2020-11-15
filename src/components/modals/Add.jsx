@@ -1,5 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+import {
+  Modal,
+  Form,
+  Button,
+  Spinner,
+} from 'react-bootstrap';
 import { useFormik } from 'formik';
 import { addChannel } from '../../api';
 import channelSchema from './validation';
@@ -62,17 +67,20 @@ const AddModal = (props) => {
               type="submit"
             >
               {f.isSubmitting && (
-                <span
-                  className="spinner-border spinner-border-sm mr-1"
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
                   role="status"
                   aria-hidden="true"
+                  className="mr-1"
                 />
               )}
               Add channel
             </Button>
           </div>
           {f.status.isFailed && (
-            <div className="text-danger mt-1 p-1">Network error. Try again</div>
+            <div className="invalid-feedback">Network error. Try again</div>
           )}
         </Form>
       </Modal.Body>

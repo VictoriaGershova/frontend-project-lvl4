@@ -1,7 +1,7 @@
 {
-  "name": "chat",
+  "name": "my-chat",
   "version": "0.0.1",
-  "description": "",
+  "description": "Just a chat",
   "main": "dist/index.js",
   "bin": {
     "slack": "dist/bin/slack.js"
