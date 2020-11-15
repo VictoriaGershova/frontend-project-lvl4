@@ -3,14 +3,14 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import '../assets/application.scss';
-import 'bootstrap/dist/js/bootstrap.js';
-
+import io from 'socket.io-client';
 import gon from 'gon';
-
 import runApp from './init';
 
 if (process.env.NODE_ENV !== 'production') {
   localStorage.debug = 'chat:*';
 }
 
-runApp(gon);
+const socket = io();
+
+runApp(socket, gon);

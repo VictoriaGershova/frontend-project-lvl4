@@ -1,38 +1,37 @@
 import React, { useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Formik, Form } from 'formik';
+import {
+  FormGroup,
+  FormControl,
+  InputGroup,
+  Button,
+  Spinner,
+} from 'react-bootstrap';
 import UserContext from './userContext';
 import { sendMessageByChannelId } from '../api';
-import { getCurrentChannel } from '../slices/channels';
+import { getCurrentChannelId } from '../slices/selectors';
 
-const mapStateToProps = (state) => {
-  const currentChannel = getCurrentChannel(state);
-  return {
-    currentChannelId: currentChannel.id,
-  };
-};
+const mapStateToProps = (state) => ({ currentChannelId: getCurrentChannelId(state) });
 
-const NewMessageForm = (props) => {
-  const { currentChannelId } = props;
+const NewMessageForm = ({ currentChannelId }) => {
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
-  }, [null]);
+  });
   return (
     <UserContext.Consumer>
       {({ userName }) => (
         <Formik
           initialValues={{ text: '' }}
-          initialStatus={{ isFailed: false }}
-          onSubmit={async ({ text }, { setStatus, resetForm }) => {
+          onSubmit={async ({ text }, { setFieldError, resetForm }) => {
             try {
-              setStatus({ isFailed: false });
               const message = { author: userName, text };
               await sendMessageByChannelId(currentChannelId, message);
               resetForm();
               inputRef.current.focus();
             } catch {
-              setStatus({ isFailed: true });
+              setFieldError('text', ' Message sending failed');
               inputRef.current.focus();
             }
           }}
@@ -41,44 +40,40 @@ const NewMessageForm = (props) => {
             handleChange,
             values,
             isSubmitting,
-            status,
+            errors,
           }) => (
             <Form>
-              <div className="form-group">
-                <div className="input-group">
-                  <input
+              <FormGroup>
+                <InputGroup>
+                  <FormControl
                     name="text"
                     type="text"
                     autoComplete="off"
                     ref={inputRef}
                     disabled={isSubmitting}
                     onChange={handleChange}
-                    className="mr-2 form-control"
+                    isInvalid={errors.text}
                     value={values.text}
+                    className="mr-2"
                   />
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={isSubmitting}
-                  >
-                    <span>
-                      {isSubmitting ? (
-                        <span
-                          className="spinner-border spinner-border-sm mr-1"
-                          role="status"
-                          aria-hidden="true"
-                        />
-                      ) : <i className="fas fa-envelope" />}
-                      {' Send'}
-                    </span>
-                  </button>
-                  {status.isFailed && (
-                    <div className="invalid-feedback">
-                      Message sending failed
-                    </div>
-                  )}
-                </div>
-              </div>
+                  <Button type="submit" variant="primary" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="mr-1"
+                      />
+                    ) : <span><i className="fas fa-envelope" /></span>}
+                    <span>{' Send'}</span>
+                  </Button>
+                  <FormControl.Feedback type="invalid">
+                    {errors.text}
+                  </FormControl.Feedback>
+                </InputGroup>
+              </FormGroup>
             </Form>
           )}
         </Formik>

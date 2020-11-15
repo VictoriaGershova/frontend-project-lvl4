@@ -1,10 +1,14 @@
 import React from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+import {
+  Modal,
+  Form,
+  Button,
+  Spinner,
+} from 'react-bootstrap';
 import { useFormik } from 'formik';
 import { removeChannelById } from '../../api';
 
-const RemoveModal = (props) => {
-  const { onHide, channel } = props;
+const RemoveModal = ({ onHide, channel }) => {
   const f = useFormik({
     initialValues: {},
     initialStatus: { isFailed: false },
@@ -24,34 +28,36 @@ const RemoveModal = (props) => {
         <Modal.Title>Delete this channel?</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        All channel messages will be deleted forever.
+        <p>All channel messages will be deleted forever.</p>
         <Form onSubmit={f.handleSubmit}>
           <Form.Group>
-            <div className="d-flex justify-content-between pt-2">
+            <div className="d-flex justify-content-between">
               <Button
-                className="btn btn-secondary"
-                type="button"
+                variant="secondary"
                 onClick={onHide}
               >
                 No
               </Button>
               <Button
                 disabled={f.isSubmitting}
-                className="btn btn-danger ml-2"
+                variant="danger"
                 type="submit"
               >
                 {f.isSubmitting && (
-                <span
-                  className="spinner-border spinner-border-sm mr-1"
-                  role="status"
-                  aria-hidden="true"
-                />
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="mr-1"
+                  />
                 )}
                 Yes, delete channel
               </Button>
             </div>
             {f.status.isFailed && (
-              <div className="text-danger mt-1 p-1">Network error. Try again</div>
+              <div className="text-danger border-top mt-1 p-1">Network error. Try again</div>
             )}
           </Form.Group>
         </Form>

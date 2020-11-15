@@ -1,8 +1,7 @@
 /* eslint no-param-reassign: 0 */
-import { createAsyncThunk, createSlice, createSelector } from '@reduxjs/toolkit';
-import _ from 'lodash';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import * as api from '../api';
-import { removeChannel, getCurrentChannel } from './channels';
+import { removeChannel } from './channels';
 
 export const fetchMessages = createAsyncThunk(
   'messages/fetchingStatus',
@@ -16,40 +15,23 @@ export const fetchMessages = createAsyncThunk(
 const messagesSlice = createSlice({
   name: 'messages',
   initialState: {
-    byId: {},
-    allIds: [],
+    items: [],
   },
   reducers: {
     addMessage: (state, { payload: { message } }) => {
-      state.byId[message.id] = message;
-      state.allIds.push(message.id);
+      state.items.push(message);
     },
   },
   extraReducers: {
     [fetchMessages.fulfilled]: (state, { payload: { messages } }) => {
-      state.byId = { ...state.byId, ..._.keyBy(messages, 'id') };
-      state.allIds.push(...messages.map(({ id }) => id));
+      state.items.push(...messages);
     },
-    [removeChannel]: (state, { payload: { id: channelId } }) => {
-      const { byId, allIds } = state;
-      const targetMessagesIds = allIds.filter((id) => byId[id].channelId === channelId);
-      state.allIds = allIds.filter((id) => byId[id].channelId !== channelId);
-      state.byId = _.omit(byId, targetMessagesIds);
+    [removeChannel]: (state, { payload: { id: removedChannelId } }) => {
+      state.items = state.items.filter(({ channelId }) => channelId !== removedChannelId)
     },
   },
 });
 
-export const getCurrentMessages = createSelector(
-  [
-    (state) => getCurrentChannel(state),
-    (state) => state.messages.allIds,
-    (state) => state.messages.byId,
-  ],
-  (currentChannel, allIds, byId) => allIds
-    .filter((id) => byId[id].channelId === currentChannel.id)
-    .map((id) => byId[id]),
-);
+export const { addMessage } = messagesSlice.actions;
 
 export default messagesSlice.reducer;
-
-export const { addMessage } = messagesSlice.actions;

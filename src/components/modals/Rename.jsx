@@ -1,11 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+import {
+  Modal,
+  Form,
+  Button,
+  Spinner,
+} from 'react-bootstrap';
 import { useFormik } from 'formik';
 import { renameChannelById } from '../../api';
 import channelSchema from './validation';
 
-const RenameModal = (props) => {
-  const { onHide, channel } = props;
+const RenameModal = ({ onHide, channel }) => {
   const f = useFormik({
     initialValues: { name: channel.name },
     initialStatus: { isFailed: false },
@@ -24,7 +28,7 @@ const RenameModal = (props) => {
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
-  }, [null]);
+  });
 
   return (
     <Modal show>
@@ -37,9 +41,10 @@ const RenameModal = (props) => {
             <Form.Control
               required
               disabled={f.isSubmitting}
-              isInvalid={!!f.errors.name}
+              isInvalid={f.touched.name && f.errors.name}
               ref={inputRef}
               onChange={f.handleChange}
+              onBlur={f.handleBlur}
               value={f.values.name}
               name="name"
               type="text"
@@ -50,29 +55,32 @@ const RenameModal = (props) => {
           </Form.Group>
           <div className="d-flex justify-content-end">
             <Button
-              className="btn btn-secondary"
-              type="button"
+              variant="secondary"
               onClick={onHide}
             >
               Cancel
             </Button>
             <Button
               disabled={f.isSubmitting}
-              className="btn btn-primary ml-2"
+              variant="primary"
+              className="ml-2"
               type="submit"
             >
               {f.isSubmitting && (
-                <span
-                  className="spinner-border spinner-border-sm mr-1"
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
                   role="status"
                   aria-hidden="true"
+                  className="mr-1"
                 />
               )}
               Rename
             </Button>
           </div>
           {f.status.isFailed && (
-            <div className="text-danger mt-1 p-1">Network error. Try again</div>
+            <div className="text-danger border-top mt-1 p-1">Network error. Try again</div>
           )}
         </Form>
       </Modal.Body>

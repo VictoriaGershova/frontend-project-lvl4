@@ -9,8 +9,7 @@ import { useFormik } from 'formik';
 import { addChannel } from '../../api';
 import channelSchema from './validation';
 
-const AddModal = (props) => {
-  const { onHide } = props;
+const AddModal = ({ onHide }) => {
   const f = useFormik({
     initialValues: { name: '' },
     initialStatus: { isFailed: false },
@@ -29,7 +28,7 @@ const AddModal = (props) => {
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
-  }, [null]);
+  });
 
   return (
     <Modal show>
@@ -42,9 +41,10 @@ const AddModal = (props) => {
             <Form.Control
               required
               disabled={f.isSubmitting}
-              isInvalid={!!f.errors.name}
+              isInvalid={f.touched.name && f.errors.name}
               ref={inputRef}
               onChange={f.handleChange}
+              onBlur={f.handleBlur}
               value={f.values.name}
               name="name"
               type="text"
@@ -55,15 +55,15 @@ const AddModal = (props) => {
           </Form.Group>
           <div className="d-flex justify-content-end">
             <Button
-              className="btn btn-secondary"
-              type="button"
+              variant="secondary"
               onClick={onHide}
             >
               Cancel
             </Button>
             <Button
               disabled={f.isSubmitting}
-              className="btn btn-primary ml-2"
+              variant="primary"
+              className="ml-1"
               type="submit"
             >
               {f.isSubmitting && (
@@ -80,7 +80,7 @@ const AddModal = (props) => {
             </Button>
           </div>
           {f.status.isFailed && (
-            <div className="invalid-feedback">Network error. Try again</div>
+            <div className="text-danger border-top mt-1 p-1">Network error. Try again</div>
           )}
         </Form>
       </Modal.Body>

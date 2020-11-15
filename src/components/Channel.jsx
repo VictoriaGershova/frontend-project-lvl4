@@ -1,86 +1,84 @@
 import React from 'react';
-import cn from 'classnames';
+import {
+  Button,
+  NavItem,
+  NavLink,
+  Dropdown,
+  ButtonGroup,
+} from 'react-bootstrap';
 
-const DefaultChannel = (props) => {
-  const {
-    channel: { name, isActive },
-    handleSwitch,
-  } = props;
-  const btnColorClass = cn({
-    'btn-primary': isActive,
-    'btn-light': !isActive,
-  });
-  return (
-    <button
-      type="button"
-      className={`mb-2 nav-link btn-block text-left btn ${btnColorClass}`}
-      onClick={handleSwitch}
-    >
-      {name}
-    </button>
-  );
-};
+const DefaultChannel = ({ name, variant, handleSwitch }) => (
+  <NavLink
+    as={Button}
+    block
+    variant={variant}
+    onClick={handleSwitch}
+    className="text-left mb-2"
+  >
+    {name}
+  </NavLink>
+);
 
 const UserChannel = (props) => {
   const {
-    channel: { name, isActive },
-    handleSwitch,
-    handleRename,
+    name,
     handleRemove,
+    handleRename,
+    handleSwitch,
+    variant,
   } = props;
-  const btnColorClass = cn({
-    'btn-primary': isActive,
-    'btn-light': !isActive,
-  });
   return (
-    <div className="d-flex mb-2 dropdown btn-group">
-      <button
-        type="button"
-        className={`flex-grow-1 nav-link btn-block text-left btn ${btnColorClass}`}
+    <Dropdown as={ButtonGroup} className="d-flex mb-2">
+      <NavLink
+        as={Button}
+        variant={variant}
         onClick={handleSwitch}
+        className="flex-grow-1 text-left"
       >
         {name}
-      </button>
-      <button
-        id="channelMenu"
-        type="button"
-        className={`flex-grow-0 dropdown-toggle dropdown-toggle-split btn border-left ${btnColorClass}`}
-        data-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        <span className="sr-only">Toggle Dropdown</span>
-      </button>
-      <div className="dropdown-menu" aria-labelledby="channelMenu">
-        <button type="button" className="dropdown-item" onClick={handleRename}>Rename</button>
-        <button type="button" className="dropdown-item" onClick={handleRemove}>Remove</button>
-      </div>
-    </div>
+      </NavLink>
+      <Dropdown.Toggle
+        split
+        variant={variant}
+        className="flex-grow-0"
+      />
+      <Dropdown.Menu>
+        <Dropdown.Item onSelect={handleRename}>Rename</Dropdown.Item>
+        <Dropdown.Item onSelect={handleRemove}>Remove</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 };
 
 const Channel = (props) => {
   const {
-    channel,
-    handleSwitch,
-    handleRename,
+    channel: { name, isActive, removable },
     handleRemove,
+    handleRename,
+    handleSwitch,
   } = props;
-  if (channel.removable) {
+  const variant = isActive ? 'primary' : 'light';
+  if (removable) {
     return (
-      <UserChannel
-        channel={channel}
-        handleSwitch={handleSwitch}
-        handleRename={handleRename}
-        handleRemove={handleRemove}
-      />
+      <NavItem as="li">
+        <UserChannel
+          name={name}
+          variant={variant}
+          handleSwitch={handleSwitch}
+          handleRemove={handleRemove}
+          handleRename={handleRename}
+        />
+      </NavItem>
     );
   }
   return (
-    <DefaultChannel
-      channel={channel}
-      handleSwitch={handleSwitch}
-    />
+    <NavItem as="li">
+      <DefaultChannel
+        name={name}
+        variant={variant}
+        handleSwitch={handleSwitch}
+      />
+    </NavItem>
   );
 };
 

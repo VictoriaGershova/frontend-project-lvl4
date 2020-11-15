@@ -1,7 +1,5 @@
-import _ from 'lodash';
 import React from 'react';
 import './rollbar';
-import io from 'socket.io-client';
 import faker from 'faker';
 import Cookies from 'js-cookie';
 import { render } from 'react-dom';
@@ -9,15 +7,8 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import Chat from './components/Chat';
 import reducer from './slices/rootReducer';
-import {
-  addChannel,
-  renameChannel,
-  removeChannel,
-} from './slices/channels';
-import {
-  fetchMessages,
-  addMessage,
-} from './slices/messages';
+import { addChannel, renameChannel, removeChannel } from './slices/channels';
+import { addMessage } from './slices/messages';
 import UserContext from './components/userContext';
 
 /* eslint-disable no-underscore-dangle */
@@ -32,12 +23,7 @@ const login = () => {
   return Cookies.get('userName');
 };
 
-const loadMessages = (store, channels) => channels.map(
-  ({ id }) => store.dispatch(fetchMessages({ channelId: id })),
-);
-
-const initSocket = (store) => {
-  const socket = io();
+const initSocket = (socket, store) => {
   socket.on('newMessage', (data) => {
     const { data: { attributes: message } } = data;
     store.dispatch(addMessage({ message }));
@@ -63,18 +49,13 @@ const initFontAwesome = () => {
   document.head.appendChild(script);
 };
 
-export default async (gon) => {
-  const {
-    channels,
-    currentChannelId,
-  } = gon;
-
+export default async (socket, gon) => {
   const preloadedState = {
     channels: {
-      byId: _.keyBy(channels, 'id'),
-      allIds: channels.map(({ id }) => id),
-      currentChannelId,
+      items: gon.channels,
+      currentChannelId: gon.currentChannelId,
     },
+    messages: { items: gon.messages },
   };
 
   const store = configureStore({
@@ -83,9 +64,7 @@ export default async (gon) => {
     devTools: devtoolMiddleware,
   });
 
-  loadMessages(store, channels);
-
-  initSocket(store);
+  initSocket(socket, store);
 
   initFontAwesome();
 
