@@ -9,7 +9,7 @@ My-Chat is a simple chat. It offers chat rooms (channels) and messaging.
 
 ## Current version
 
-[my-chat](https://gentle-brook-45765.herokuapp.com/).
+[my-chat](https://gentle-brook-45765.herokuapp.com/)
 
 
 ## Requirements
