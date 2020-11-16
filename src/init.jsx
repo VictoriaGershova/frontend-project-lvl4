@@ -40,13 +40,6 @@ const initSocket = (socket, store) => {
   });
 };
 
-const initFontAwesome = () => {
-  const script = document.createElement('script');
-  script.src = 'https://kit.fontawesome.com/b96dd7d146.js';
-  script.crossorigin = 'anonymous';
-  document.head.appendChild(script);
-};
-
 const initApp = (socket, gon) => {
   const preloadedState = {
     channels: {
@@ -63,8 +56,6 @@ const initApp = (socket, gon) => {
   });
 
   initSocket(socket, store);
-
-  initFontAwesome();
 
   const App = ({ children }) => (
     <Provider store={store}>

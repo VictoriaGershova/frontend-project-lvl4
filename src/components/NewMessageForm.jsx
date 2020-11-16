@@ -8,6 +8,8 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import UserContext from './userContext';
 import { sendMessageByChannelId } from '../api';
 import { getCurrentChannelId } from '../slices/selectors';
@@ -66,7 +68,7 @@ const NewMessageForm = ({ currentChannelId }) => {
                         aria-hidden="true"
                         className="mr-1"
                       />
-                    ) : <span><i className="fas fa-envelope" /></span>}
+                    ) : <FontAwesomeIcon icon={faEnvelope} />}
                     <span>{' Send'}</span>
                   </Button>
                   <FormControl.Feedback type="invalid">

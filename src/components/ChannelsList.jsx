@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Nav, Button, Col } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import getModal from './modals';
 import { getChannels } from '../slices/selectors';
 import { setCurrentChannel } from '../slices/channels';
@@ -31,7 +33,7 @@ const ChannelsList = ({ channels, setCurrentChannel }) => {
           className="ml-auto p-0"
           onClick={() => showModal('adding')}
         >
-          <span><i className="fas fa-plus" /></span>
+          <FontAwesomeIcon icon={faPlus} />
         </Button>
       </div>
       <Nav fill as="ul" variant="pills" className="flex-column">
