@@ -2,10 +2,8 @@ import React from 'react';
 import './rollbar';
 import faker from 'faker';
 import Cookies from 'js-cookie';
-import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import Chat from './components/Chat';
 import reducer from './slices/rootReducer';
 import { addChannel, renameChannel, removeChannel } from './slices/channels';
 import { addMessage } from './slices/messages';
@@ -49,7 +47,7 @@ const initFontAwesome = () => {
   document.head.appendChild(script);
 };
 
-export default async (socket, gon) => {
+const initApp = (socket, gon) => {
   const preloadedState = {
     channels: {
       items: gon.channels,
@@ -68,12 +66,15 @@ export default async (socket, gon) => {
 
   initFontAwesome();
 
-  render(
+  const App = ({ children }) => (
     <Provider store={store}>
       <UserContext.Provider value={{ userName: login() }}>
-        <Chat />
+        {children}
       </UserContext.Provider>
-    </Provider>,
-    document.getElementById('chat'),
+    </Provider>
   );
+
+  return App;
 };
+
+export default initApp;
