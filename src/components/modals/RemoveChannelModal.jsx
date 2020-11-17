@@ -1,3 +1,4 @@
+/* eslint no-shadow: 0 */
 import React from 'react';
 import {
   Modal,
@@ -5,10 +6,17 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import { useFormik } from 'formik';
 import { removeChannelById } from '../../api';
+import { hideModal } from '../../slices/modal';
+import { getChannelById } from '../../slices/selectors';
 
-const RemoveModal = ({ onHide, channel }) => {
+const mapStateToProps = (state, ownProps) => ({
+  channel: getChannelById(state, ownProps.channelId),
+});
+
+const RemoveChannelModal = ({ hideModal, channel }) => {
   const f = useFormik({
     initialValues: {},
     initialStatus: { isFailed: false },
@@ -16,7 +24,7 @@ const RemoveModal = ({ onHide, channel }) => {
       try {
         setStatus({ isFailed: false });
         await removeChannelById(channel.id);
-        onHide();
+        hideModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -24,8 +32,10 @@ const RemoveModal = ({ onHide, channel }) => {
   });
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Delete this channel?</Modal.Title>
+      <Modal.Header closeButton onHide={hideModal}>
+        <Modal.Title>
+          {`Delete channel ${channel && channel.name}?`}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>All channel messages will be deleted forever.</p>
@@ -34,7 +44,7 @@ const RemoveModal = ({ onHide, channel }) => {
             <div className="d-flex justify-content-between">
               <Button
                 variant="secondary"
-                onClick={onHide}
+                onClick={hideModal}
               >
                 No
               </Button>
@@ -66,4 +76,4 @@ const RemoveModal = ({ onHide, channel }) => {
   );
 };
 
-export default RemoveModal;
+export default connect(mapStateToProps, { hideModal })(RemoveChannelModal);

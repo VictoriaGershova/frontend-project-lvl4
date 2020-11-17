@@ -1,29 +1,25 @@
 /* eslint no-shadow: 0 */
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Nav, Button, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
-import getModal from './modals';
+import ChannelModal from './modals/ModalRoot';
+import { showModal } from '../slices/modal';
 import { getChannels } from '../slices/selectors';
-import { setCurrentChannel } from '../slices/channels';
+import { setCurrentChannelId } from '../slices/channels';
 import Channel from './Channel';
 
 const mapStateToProps = (state) => ({ channels: getChannels(state) });
 
-const renderChannelModal = (modal, hideModal) => {
-  if (!modal.type) {
-    return null;
-  }
-  const ChannelModal = getModal(modal.type);
-  return <ChannelModal onHide={hideModal} channel={modal.channel} />;
-};
-
-const ChannelsList = ({ channels, setCurrentChannel }) => {
-  const [modal, setModal] = useState({ type: null, channel: null });
-  const hideModal = () => setModal({ type: null, channel: null });
-  const showModal = (type, channel = null) => setModal({ type, channel });
-
+const ChannelsList = (props) => {
+  const {
+    channels,
+    showModal,
+    setCurrentChannelId,
+  } = props;
+  const showChannelModal = (type, channelId = null) => (
+    showModal({ type, props: { channelId } }));
   return (
     <Col xs={3} className="border-right">
       <div className="d-flex mb-2">
@@ -31,7 +27,7 @@ const ChannelsList = ({ channels, setCurrentChannel }) => {
         <Button
           variant="link"
           className="ml-auto p-0"
-          onClick={() => showModal('adding')}
+          onClick={() => showChannelModal('ADD_CHANNEL')}
         >
           <FontAwesomeIcon icon={faPlus} />
         </Button>
@@ -41,17 +37,15 @@ const ChannelsList = ({ channels, setCurrentChannel }) => {
           <Channel
             key={channel.id}
             channel={channel}
-            handleSwitch={() => setCurrentChannel({ channel })}
-            handleRemove={() => showModal('removing', channel)}
-            handleRename={() => showModal('renaming', channel)}
+            handleSwitch={() => setCurrentChannelId({ id: channel.id })}
+            handleRemove={() => showChannelModal('REMOVE_CHANNEL', channel.id)}
+            handleRename={() => showChannelModal('RENAME_CHANNEL', channel.id)}
           />
         ))}
       </Nav>
-      {
-        renderChannelModal(modal, hideModal)
-      }
+      <ChannelModal />
     </Col>
   );
 };
 
-export default connect(mapStateToProps, { setCurrentChannel })(ChannelsList);
+export default connect(mapStateToProps, { setCurrentChannelId, showModal })(ChannelsList);

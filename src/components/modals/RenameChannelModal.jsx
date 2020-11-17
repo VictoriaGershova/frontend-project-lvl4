@@ -1,3 +1,4 @@
+/* eslint no-shadow: 0 */
 import React, { useEffect, useRef } from 'react';
 import {
   Modal,
@@ -5,20 +6,27 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import { useFormik } from 'formik';
-import { addChannel } from '../../api';
+import { renameChannelById } from '../../api';
+import { hideModal } from '../../slices/modal';
+import { getChannelById } from '../../slices/selectors';
 import channelSchema from './validation';
 
-const AddModal = ({ onHide }) => {
+const mapStateToProps = (state, ownProps) => ({
+  channel: getChannelById(state, ownProps.channelId),
+});
+
+const RenameChannelModal = ({ hideModal, channel }) => {
   const f = useFormik({
-    initialValues: { name: '' },
+    initialValues: { name: channel.name },
     initialStatus: { isFailed: false },
     validationSchema: channelSchema,
     onSubmit: async ({ name }, { setStatus }) => {
       try {
         setStatus({ isFailed: false });
-        await addChannel({ name });
-        onHide();
+        await renameChannelById(channel.id, name);
+        hideModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -32,8 +40,10 @@ const AddModal = ({ onHide }) => {
 
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>New channel</Modal.Title>
+      <Modal.Header closeButton onHide={hideModal}>
+        <Modal.Title>
+          {`Rename channel ${channel.name}`}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={f.handleSubmit}>
@@ -56,14 +66,14 @@ const AddModal = ({ onHide }) => {
           <div className="d-flex justify-content-end">
             <Button
               variant="secondary"
-              onClick={onHide}
+              onClick={hideModal}
             >
               Cancel
             </Button>
             <Button
               disabled={f.isSubmitting}
               variant="primary"
-              className="ml-1"
+              className="ml-2"
               type="submit"
             >
               {f.isSubmitting && (
@@ -76,7 +86,7 @@ const AddModal = ({ onHide }) => {
                   className="mr-1"
                 />
               )}
-              Add channel
+              Rename
             </Button>
           </div>
           {f.status.isFailed && (
@@ -88,4 +98,4 @@ const AddModal = ({ onHide }) => {
   );
 };
 
-export default AddModal;
+export default connect(mapStateToProps, { hideModal })(RenameChannelModal);

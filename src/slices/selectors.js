@@ -22,3 +22,6 @@ export const getChannels = createSelector(
       isActive: channel.id === currentChannelId,
     })),
 );
+
+export const getChannelById = (state, channelId) => state.channels.items
+  .find(({ id }) => id === channelId);

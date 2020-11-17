@@ -1,3 +1,4 @@
+/* eslint no-shadow: 0 */
 import React, { useEffect, useRef } from 'react';
 import {
   Modal,
@@ -5,20 +6,22 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
+import { connect } from 'react-redux';
 import { useFormik } from 'formik';
-import { renameChannelById } from '../../api';
+import { addChannel } from '../../api';
+import { hideModal } from '../../slices/modal';
 import channelSchema from './validation';
 
-const RenameModal = ({ onHide, channel }) => {
+const AddChannelModal = ({ hideModal }) => {
   const f = useFormik({
-    initialValues: { name: channel.name },
+    initialValues: { name: '' },
     initialStatus: { isFailed: false },
     validationSchema: channelSchema,
     onSubmit: async ({ name }, { setStatus }) => {
       try {
         setStatus({ isFailed: false });
-        await renameChannelById(channel.id, name);
-        onHide();
+        await addChannel({ name });
+        hideModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -32,8 +35,8 @@ const RenameModal = ({ onHide, channel }) => {
 
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={onHide}>
-        <Modal.Title>Rename channel</Modal.Title>
+      <Modal.Header closeButton onHide={hideModal}>
+        <Modal.Title>New channel</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={f.handleSubmit}>
@@ -56,14 +59,14 @@ const RenameModal = ({ onHide, channel }) => {
           <div className="d-flex justify-content-end">
             <Button
               variant="secondary"
-              onClick={onHide}
+              onClick={hideModal}
             >
               Cancel
             </Button>
             <Button
               disabled={f.isSubmitting}
               variant="primary"
-              className="ml-2"
+              className="ml-1"
               type="submit"
             >
               {f.isSubmitting && (
@@ -76,7 +79,7 @@ const RenameModal = ({ onHide, channel }) => {
                   className="mr-1"
                 />
               )}
-              Rename
+              Add channel
             </Button>
           </div>
           {f.status.isFailed && (
@@ -88,4 +91,4 @@ const RenameModal = ({ onHide, channel }) => {
   );
 };
 
-export default RenameModal;
+export default connect(null, { hideModal })(AddChannelModal);
