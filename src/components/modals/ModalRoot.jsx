@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import RemoveChannelModal from './RemoveChannelModal';
 import RenameChannelModal from './RenameChannelModal';
 import AddChannelModal from './AddChannelModal';
@@ -11,15 +11,8 @@ const modalComponents = {
   ADD_CHANNEL: AddChannelModal,
 };
 
-const mapStateToProps = (state) => {
-  const { type, props } = state.modal;
-  return {
-    modalType: type,
-    modalProps: props,
-  };
-};
-
-const ModalRoot = ({ modalType, modalProps }) => {
+const ModalRoot = () => {
+  const { type: modalType, props: modalProps } = useSelector(({ modal }) => modal);
   if (!modalType) {
     return null;
   }
@@ -27,4 +20,4 @@ const ModalRoot = ({ modalType, modalProps }) => {
   return <SpecificModal {...modalProps} />;
 };
 
-export default connect(mapStateToProps)(ModalRoot);
+export default ModalRoot;

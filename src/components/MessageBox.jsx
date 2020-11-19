@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { getCurrentMessages } from '../slices/selectors';
 
-const mapStateToProps = (state) => {
-  const messages = getCurrentMessages(state);
+const MessageBox = () => {
+  const messages = useSelector((state) => getCurrentMessages(state));
   const messagesAmount = messages.length;
-  return { messages, messagesAmount };
-};
 
-const MessageBox = ({ messages, messagesAmount }) => {
   const endOfMessageBoxRef = useCallback((endOfMessageBoxEl) => {
     if (endOfMessageBoxEl !== null && !!endOfMessageBoxEl) {
       endOfMessageBoxEl.scrollIntoView();
@@ -30,4 +27,4 @@ const MessageBox = ({ messages, messagesAmount }) => {
   );
 };
 
-export default connect(mapStateToProps)(MessageBox);
+export default MessageBox;

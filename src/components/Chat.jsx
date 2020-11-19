@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  Row,
-  Col,
-} from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import ChannelsList from './ChannelsList';
 import MessageBox from './MessageBox';
 import NewMessageForm from './NewMessageForm';

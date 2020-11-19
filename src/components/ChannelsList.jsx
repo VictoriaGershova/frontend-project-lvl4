@@ -1,6 +1,5 @@
-/* eslint no-shadow: 0 */
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Nav, Button, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -10,16 +9,12 @@ import { getChannels } from '../slices/selectors';
 import { setCurrentChannelId } from '../slices/channels';
 import Channel from './Channel';
 
-const mapStateToProps = (state) => ({ channels: getChannels(state) });
-
-const ChannelsList = (props) => {
-  const {
-    channels,
-    showModal,
-    setCurrentChannelId,
-  } = props;
-  const showChannelModal = (type, channelId = null) => (
-    showModal({ type, props: { channelId } }));
+const ChannelsList = () => {
+  const dispatch = useDispatch();
+  const channels = useSelector((state) => getChannels(state));
+  const showChannelModal = (type, channelId = null) => dispatch(
+    showModal({ type, props: { channelId } }),
+  );
   return (
     <Col xs={3} className="border-right">
       <div className="d-flex mb-2">
@@ -37,7 +32,7 @@ const ChannelsList = (props) => {
           <Channel
             key={channel.id}
             channel={channel}
-            handleSwitch={() => setCurrentChannelId({ id: channel.id })}
+            handleSwitch={() => dispatch(setCurrentChannelId({ id: channel.id }))}
             handleRemove={() => showChannelModal('REMOVE_CHANNEL', channel.id)}
             handleRename={() => showChannelModal('RENAME_CHANNEL', channel.id)}
           />
@@ -48,4 +43,4 @@ const ChannelsList = (props) => {
   );
 };
 
-export default connect(mapStateToProps, { setCurrentChannelId, showModal })(ChannelsList);
+export default ChannelsList;

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Formik, Form } from 'formik';
 import {
   FormGroup,
@@ -14,9 +14,9 @@ import UserContext from './userContext';
 import { sendMessageByChannelId } from '../api';
 import { getCurrentChannelId } from '../slices/selectors';
 
-const mapStateToProps = (state) => ({ currentChannelId: getCurrentChannelId(state) });
+const NewMessageForm = () => {
+  const currentChannelId = useSelector((state) => getCurrentChannelId(state));
 
-const NewMessageForm = ({ currentChannelId }) => {
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
@@ -84,4 +84,4 @@ const NewMessageForm = ({ currentChannelId }) => {
   );
 };
 
-export default connect(mapStateToProps)(NewMessageForm);
+export default NewMessageForm;

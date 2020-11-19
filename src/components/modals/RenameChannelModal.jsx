@@ -6,27 +6,27 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { renameChannelById } from '../../api';
 import { hideModal } from '../../slices/modal';
 import { getChannelById } from '../../slices/selectors';
 import channelSchema from './validation';
 
-const mapStateToProps = (state, ownProps) => ({
-  channel: getChannelById(state, ownProps.channelId),
-});
-
-const RenameChannelModal = ({ hideModal, channel }) => {
+const RenameChannelModal = ({ channelId }) => {
+  const dispatch = useDispatch();
+  const hideRenameChannelModal = () => dispatch(hideModal());
+  const channel = useSelector((state) => getChannelById(state, channelId));
+  const channelName = channel ? channel.name : '';
   const f = useFormik({
-    initialValues: { name: channel.name },
+    initialValues: { name: channelName },
     initialStatus: { isFailed: false },
     validationSchema: channelSchema,
     onSubmit: async ({ name }, { setStatus }) => {
       try {
         setStatus({ isFailed: false });
         await renameChannelById(channel.id, name);
-        hideModal();
+        hideRenameChannelModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -40,9 +40,9 @@ const RenameChannelModal = ({ hideModal, channel }) => {
 
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={hideModal}>
+      <Modal.Header closeButton onHide={hideRenameChannelModal}>
         <Modal.Title>
-          {`Rename channel ${channel.name}`}
+          {`Rename channel ${channelName}`}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -66,7 +66,7 @@ const RenameChannelModal = ({ hideModal, channel }) => {
           <div className="d-flex justify-content-end">
             <Button
               variant="secondary"
-              onClick={hideModal}
+              onClick={hideRenameChannelModal}
             >
               Cancel
             </Button>
@@ -98,4 +98,4 @@ const RenameChannelModal = ({ hideModal, channel }) => {
   );
 };
 
-export default connect(mapStateToProps, { hideModal })(RenameChannelModal);
+export default RenameChannelModal;

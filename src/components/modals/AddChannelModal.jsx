@@ -1,4 +1,3 @@
-/* eslint no-shadow: 0 */
 import React, { useEffect, useRef } from 'react';
 import {
   Modal,
@@ -6,13 +5,15 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import { addChannel } from '../../api';
 import { hideModal } from '../../slices/modal';
 import channelSchema from './validation';
 
-const AddChannelModal = ({ hideModal }) => {
+const AddChannelModal = () => {
+  const dispatch = useDispatch();
+  const hideAddChannelModal = () => dispatch(hideModal());
   const f = useFormik({
     initialValues: { name: '' },
     initialStatus: { isFailed: false },
@@ -21,7 +22,7 @@ const AddChannelModal = ({ hideModal }) => {
       try {
         setStatus({ isFailed: false });
         await addChannel({ name });
-        hideModal();
+        hideAddChannelModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -35,7 +36,7 @@ const AddChannelModal = ({ hideModal }) => {
 
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={hideModal}>
+      <Modal.Header closeButton onHide={hideAddChannelModal}>
         <Modal.Title>New channel</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -59,7 +60,7 @@ const AddChannelModal = ({ hideModal }) => {
           <div className="d-flex justify-content-end">
             <Button
               variant="secondary"
-              onClick={hideModal}
+              onClick={hideAddChannelModal}
             >
               Cancel
             </Button>
@@ -91,4 +92,4 @@ const AddChannelModal = ({ hideModal }) => {
   );
 };
 
-export default connect(null, { hideModal })(AddChannelModal);
+export default AddChannelModal;

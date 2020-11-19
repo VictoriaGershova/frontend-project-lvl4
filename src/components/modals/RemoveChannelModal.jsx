@@ -6,17 +6,17 @@ import {
   Button,
   Spinner,
 } from 'react-bootstrap';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { removeChannelById } from '../../api';
 import { hideModal } from '../../slices/modal';
 import { getChannelById } from '../../slices/selectors';
 
-const mapStateToProps = (state, ownProps) => ({
-  channel: getChannelById(state, ownProps.channelId),
-});
-
-const RemoveChannelModal = ({ hideModal, channel }) => {
+const RemoveChannelModal = ({ channelId }) => {
+  const dispatch = useDispatch();
+  const hideRemoveChannelModal = () => dispatch(hideModal());
+  const channel = useSelector((state) => getChannelById(state, channelId));
+  const channelName = channel ? channel.name : '';
   const f = useFormik({
     initialValues: {},
     initialStatus: { isFailed: false },
@@ -24,7 +24,7 @@ const RemoveChannelModal = ({ hideModal, channel }) => {
       try {
         setStatus({ isFailed: false });
         await removeChannelById(channel.id);
-        hideModal();
+        hideRemoveChannelModal();
       } catch {
         setStatus({ isFailed: true });
       }
@@ -32,9 +32,9 @@ const RemoveChannelModal = ({ hideModal, channel }) => {
   });
   return (
     <Modal show>
-      <Modal.Header closeButton onHide={hideModal}>
+      <Modal.Header closeButton onHide={hideRemoveChannelModal}>
         <Modal.Title>
-          {`Delete channel ${channel && channel.name}?`}
+          {`Delete channel ${channelName}?`}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -44,7 +44,7 @@ const RemoveChannelModal = ({ hideModal, channel }) => {
             <div className="d-flex justify-content-between">
               <Button
                 variant="secondary"
-                onClick={hideModal}
+                onClick={hideRemoveChannelModal}
               >
                 No
               </Button>
@@ -76,4 +76,4 @@ const RemoveChannelModal = ({ hideModal, channel }) => {
   );
 };
 
-export default connect(mapStateToProps, { hideModal })(RemoveChannelModal);
+export default RemoveChannelModal;
