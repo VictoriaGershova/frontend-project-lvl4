@@ -33,7 +33,7 @@ const NewMessageForm = () => {
               resetForm();
               inputRef.current.focus();
             } catch {
-              setFieldError('text', ' Message sending failed');
+              setFieldError('text', 'Message sending failed');
               inputRef.current.focus();
             }
           }}
@@ -57,8 +57,14 @@ const NewMessageForm = () => {
                     isInvalid={errors.text}
                     value={values.text}
                     className="mr-2"
+                    data-testid="text"
                   />
-                  <Button type="submit" variant="primary" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                    data-testid="submit"
+                  >
                     {isSubmitting ? (
                       <Spinner
                         as="span"
@@ -71,7 +77,7 @@ const NewMessageForm = () => {
                     ) : <FontAwesomeIcon icon={faEnvelope} />}
                     <span>{' Send'}</span>
                   </Button>
-                  <FormControl.Feedback type="invalid">
+                  <FormControl.Feedback data-testid="feedback" type="invalid">
                     {errors.text}
                   </FormControl.Feedback>
                 </InputGroup>

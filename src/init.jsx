@@ -1,6 +1,7 @@
 import React from 'react';
 import './rollbar';
 import faker from 'faker';
+import io from 'socket.io-client';
 import Cookies from 'js-cookie';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -40,7 +41,7 @@ const initSocket = (socket, store) => {
   });
 };
 
-const initApp = (socket, gon) => {
+const initApp = (gon, socket = io()) => {
   const preloadedState = {
     channels: {
       items: gon.channels,
