@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { Formik, Form } from 'formik';
+import { useFormik } from 'formik';
 import {
+  Form,
   FormGroup,
   FormControl,
   InputGroup,
@@ -16,77 +17,70 @@ import { getCurrentChannelId } from '../slices/selectors';
 
 const NewMessageForm = () => {
   const currentChannelId = useSelector((state) => getCurrentChannelId(state));
+  const { userName } = useContext(UserContext);
 
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
   });
+
+  const handleSubmit = async ({ text }, { setFieldError, resetForm }) => {
+    try {
+      const message = { author: userName, text };
+      await sendMessageByChannelId(currentChannelId, message);
+      resetForm();
+      inputRef.current.focus();
+    } catch {
+      setFieldError('text', 'Message sending failed');
+      inputRef.current.focus();
+    }
+  };
+
+  const f = useFormik({
+    initialValues: { text: '' },
+    onSubmit: handleSubmit,
+  });
+
   return (
-    <UserContext.Consumer>
-      {({ userName }) => (
-        <Formik
-          initialValues={{ text: '' }}
-          onSubmit={async ({ text }, { setFieldError, resetForm }) => {
-            try {
-              const message = { author: userName, text };
-              await sendMessageByChannelId(currentChannelId, message);
-              resetForm();
-              inputRef.current.focus();
-            } catch {
-              setFieldError('text', 'Message sending failed');
-              inputRef.current.focus();
-            }
-          }}
-        >
-          {({
-            handleChange,
-            values,
-            isSubmitting,
-            errors,
-          }) => (
-            <Form>
-              <FormGroup>
-                <InputGroup>
-                  <FormControl
-                    name="text"
-                    type="text"
-                    autoComplete="off"
-                    ref={inputRef}
-                    disabled={isSubmitting}
-                    onChange={handleChange}
-                    isInvalid={errors.text}
-                    value={values.text}
-                    className="mr-2"
-                    data-testid="text"
-                  />
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={isSubmitting}
-                    data-testid="submit"
-                  >
-                    {isSubmitting ? (
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="mr-1"
-                      />
-                    ) : <FontAwesomeIcon icon={faEnvelope} />}
-                    <span>{' Send'}</span>
-                  </Button>
-                  <FormControl.Feedback data-testid="feedback" type="invalid">
-                    {errors.text}
-                  </FormControl.Feedback>
-                </InputGroup>
-              </FormGroup>
-            </Form>
-          )}
-        </Formik>
-      )}
-    </UserContext.Consumer>
+    <Form onSubmit={f.handleSubmit}>
+      <FormGroup>
+        <InputGroup>
+          <FormControl
+            name="text"
+            type="text"
+            autoComplete="off"
+            ref={inputRef}
+            disabled={f.isSubmitting}
+            onChange={f.handleChange}
+            isInvalid={f.errors.text}
+            value={f.values.text}
+            className="mr-2"
+            data-testid="text"
+          />
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={f.isSubmitting}
+            data-testid="submit"
+          >
+            {f.isSubmitting ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                className="mr-1"
+              />
+            ) : <FontAwesomeIcon icon={faEnvelope} />}
+            <span>{' Send'}</span>
+          </Button>
+          <FormControl.Feedback data-testid="feedback" type="invalid">
+            {f.errors.text}
+          </FormControl.Feedback>
+        </InputGroup>
+      </FormGroup>
+    </Form>
   );
 };
 

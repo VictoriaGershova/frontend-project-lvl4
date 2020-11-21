@@ -15,7 +15,7 @@ const ext = window.__REDUX_DEVTOOLS_EXTENSION__;
 const devtoolMiddleware = ext && ext();
 /* eslint-enable */
 
-const login = () => {
+const getUserName = () => {
   if (!Cookies.get('userName')) {
     Cookies.set('userName', faker.internet.userName());
   }
@@ -60,7 +60,7 @@ const initApp = (gon, socket = io()) => {
 
   const App = ({ children }) => (
     <Provider store={store}>
-      <UserContext.Provider value={{ userName: login() }}>
+      <UserContext.Provider value={{ userName: getUserName() }}>
         {children}
       </UserContext.Provider>
     </Provider>
