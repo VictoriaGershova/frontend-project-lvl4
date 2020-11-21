@@ -23,5 +23,5 @@ export const getChannels = createSelector(
     })),
 );
 
-export const getChannelById = (state, channelId) => state.channels.items
+export const getChannelById = (state, channelId) => getChannels(state)
   .find(({ id }) => id === channelId);

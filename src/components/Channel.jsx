@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Button,
   NavItem,
@@ -6,6 +7,9 @@ import {
   Dropdown,
   ButtonGroup,
 } from 'react-bootstrap';
+import { showModal } from '../slices/modal';
+import { getChannelById } from '../slices/selectors';
+import { setCurrentChannelId } from '../slices/channels';
 
 const DefaultChannel = ({ name, variant, handleSwitch }) => (
   <NavLink
@@ -50,14 +54,22 @@ const UserChannel = (props) => {
   );
 };
 
-const Channel = (props) => {
-  const {
-    channel: { name, isActive, removable },
-    handleRemove,
-    handleRename,
-    handleSwitch,
-  } = props;
+const Channel = ({ channelId }) => {
+  const channel = useSelector((state) => getChannelById(state, channelId));
+  if (!channel) {
+    return null;
+  }
+  const dispatch = useDispatch();
+  const { name, isActive, removable } = channel;
+  const showChannelModal = (type) => dispatch(
+    showModal({ type, props: { channelId } }),
+  );
+  const handleSwitch = () => dispatch(setCurrentChannelId({ id: channelId }));
+  const handleRemove = () => showChannelModal('REMOVE_CHANNEL');
+  const handleRename = () => showChannelModal('RENAME_CHANNEL');
+
   const variant = isActive ? 'primary' : 'light';
+
   if (removable) {
     return (
       <NavItem as="li">

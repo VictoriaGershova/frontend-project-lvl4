@@ -12,7 +12,7 @@ const modalSlice = createSlice({
   reducers: {
     showModal: (state, { payload }) => {
       state.type = payload.type;
-      state.props = payload.props;
+      state.props = payload.props || {};
     },
     hideModal: () => initialState,
   },

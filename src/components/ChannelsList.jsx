@@ -6,37 +6,26 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import ChannelModal from './modals/ModalRoot';
 import { showModal } from '../slices/modal';
 import { getChannels } from '../slices/selectors';
-import { setCurrentChannelId } from '../slices/channels';
 import Channel from './Channel';
 
 const ChannelsList = () => {
   const dispatch = useDispatch();
   const channels = useSelector(getChannels);
-  const showChannelModal = (type, channelId = null) => dispatch(
-    showModal({ type, props: { channelId } }),
-  );
+  const showAddChannelModal = () => dispatch(showModal({ type: 'ADD_CHANNEL' }));
   return (
-    <Col xs={3} className="border-right">
+    <Col xs={3} className="border-right mt-1">
       <div className="d-flex mb-2">
         <span>Channels</span>
         <Button
           variant="link"
           className="ml-auto p-0"
-          onClick={() => showChannelModal('ADD_CHANNEL')}
+          onClick={showAddChannelModal}
         >
           <FontAwesomeIcon icon={faPlus} />
         </Button>
       </div>
       <Nav fill as="ul" variant="pills" className="flex-column">
-        {channels.map((channel) => (
-          <Channel
-            key={channel.id}
-            channel={channel}
-            handleSwitch={() => dispatch(setCurrentChannelId({ id: channel.id }))}
-            handleRemove={() => showChannelModal('REMOVE_CHANNEL', channel.id)}
-            handleRename={() => showChannelModal('RENAME_CHANNEL', channel.id)}
-          />
-        ))}
+        {channels.map(({ id }) => <Channel key={id} channelId={id} />)}
       </Nav>
       <ChannelModal />
     </Col>
