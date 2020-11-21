@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getCurrentMessages } from '../slices/selectors';
 
@@ -6,10 +6,12 @@ const MessageBox = () => {
   const messages = useSelector(getCurrentMessages);
   const messagesAmount = messages.length;
 
-  const endOfMessageBoxRef = useCallback((endOfMessageBoxEl) => {
-    if (endOfMessageBoxEl !== null && !!endOfMessageBoxEl) {
-      endOfMessageBoxEl.scrollIntoView();
+  const lastMessageRef = useRef();
+  useEffect(() => {
+    if (!lastMessageRef.current) {
+      return;
     }
+    lastMessageRef.current.scrollIntoView();
   }, [messagesAmount]);
 
   return (
@@ -17,7 +19,7 @@ const MessageBox = () => {
       {messages.map(({ id, author, text }, ind) => (
         <div
           key={id}
-          ref={ind === messagesAmount - 1 ? endOfMessageBoxRef : undefined}
+          ref={ind === messagesAmount - 1 ? lastMessageRef : undefined}
         >
           <b>{author}</b>
           {`: ${text}`}
