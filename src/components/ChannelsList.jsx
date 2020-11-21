@@ -11,7 +11,7 @@ import Channel from './Channel';
 
 const ChannelsList = () => {
   const dispatch = useDispatch();
-  const channels = useSelector((state) => getChannels(state));
+  const channels = useSelector(getChannels);
   const showChannelModal = (type, channelId = null) => dispatch(
     showModal({ type, props: { channelId } }),
   );

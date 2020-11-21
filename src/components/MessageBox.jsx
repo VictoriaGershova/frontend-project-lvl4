@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { getCurrentMessages } from '../slices/selectors';
 
 const MessageBox = () => {
-  const messages = useSelector((state) => getCurrentMessages(state));
+  const messages = useSelector(getCurrentMessages);
   const messagesAmount = messages.length;
 
   const endOfMessageBoxRef = useCallback((endOfMessageBoxEl) => {

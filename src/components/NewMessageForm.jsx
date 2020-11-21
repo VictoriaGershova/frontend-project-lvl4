@@ -16,7 +16,7 @@ import { sendMessageByChannelId } from '../api';
 import { getCurrentChannelId } from '../slices/selectors';
 
 const NewMessageForm = () => {
-  const currentChannelId = useSelector((state) => getCurrentChannelId(state));
+  const currentChannelId = useSelector(getCurrentChannelId);
   const { userName } = useContext(UserContext);
 
   const inputRef = useRef();
