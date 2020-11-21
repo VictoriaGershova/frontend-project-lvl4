@@ -1,45 +1,40 @@
 import axios from 'axios';
 import routes from './routes';
 
-export const fetchMessagesByChannelId = async (channelId) => {
+export const fetchMessagesByChannelId = (channelId) => {
   const url = routes.channelMessagesPath(channelId);
-  const res = await axios.get(url);
-  return res;
+  return axios.get(url);
 };
 
-export const sendMessageByChannelId = async (channelId, message) => {
+export const sendMessageByChannelId = (channelId, message) => {
   const url = routes.channelMessagesPath(channelId);
   const data = {
     data: { attributes: message },
   };
-  const res = await axios.post(url, data, { timeout: 10000 });
-  return res;
+  return axios.post(url, data, { timeout: 10000 });
 };
 
-export const renameChannelById = async (id, name) => {
+export const renameChannelById = (id, name) => {
   const url = routes.channelPath(id);
   const data = {
     data: {
       attributes: { name },
     },
   };
-  const res = await axios.patch(url, data, { timeout: 10000 });
-  return res;
+  return axios.patch(url, data, { timeout: 10000 });
 };
 
-export const addChannel = async ({ name }) => {
+export const addChannel = ({ name }) => {
   const url = routes.channelsPath();
   const data = {
     data: {
       attributes: { name },
     },
   };
-  const res = await axios.post(url, data, { timeout: 10000 });
-  return res;
+  return axios.post(url, data, { timeout: 10000 });
 };
 
-export const removeChannelById = async (id) => {
+export const removeChannelById = (id) => {
   const url = routes.channelPath(id);
-  const res = await axios.delete(url, { timeout: 10000 });
-  return res;
+  return axios.delete(url, { timeout: 10000 });
 };
