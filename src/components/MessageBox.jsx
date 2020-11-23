@@ -1,26 +1,23 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { animateScroll as scroll } from 'react-scroll';
 import { getCurrentMessages } from '../slices/selectors';
 
 const MessageBox = () => {
   const messages = useSelector(getCurrentMessages);
   const messagesAmount = messages.length;
 
-  const lastMessageRef = useRef();
   useEffect(() => {
-    if (!lastMessageRef.current) {
-      return;
-    }
-    lastMessageRef.current.scrollIntoView();
+    scroll.scrollToBottom({
+      containerId: 'message-box',
+      duration: 0,
+    });
   }, [messagesAmount]);
 
   return (
-    <div className="overflow-auto mb-3">
-      {messages.map(({ id, author, text }, ind) => (
-        <div
-          key={id}
-          ref={ind === messagesAmount - 1 ? lastMessageRef : undefined}
-        >
+    <div id="message-box" className="overflow-auto mb-3">
+      {messages.map(({ id, author, text }) => (
+        <div key={id}>
           <b>{author}</b>
           {`: ${text}`}
         </div>
