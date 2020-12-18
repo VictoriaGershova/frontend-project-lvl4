@@ -15,12 +15,13 @@ const ext = window.__REDUX_DEVTOOLS_EXTENSION__;
 const devtoolMiddleware = ext && ext();
 /* eslint-enable */
 
-const getUserName = () => {
-  if (!Cookies.get('userName')) {
-    Cookies.set('userName', faker.internet.userName());
-  }
-  return Cookies.get('userName');
+const isNewUser = () => !Cookies.get('userName');
+
+const saveUserName = (name) => {
+  Cookies.set('userName', name);
 };
+
+const getUserName = () => Cookies.get('userName');
 
 const initSocket = (socket, store) => {
   socket.on('newMessage', (data) => {
@@ -57,6 +58,10 @@ const initApp = (gon, socket = io()) => {
   });
 
   initSocket(socket, store);
+
+  if (isNewUser()) {
+    saveUserName(faker.internet.userName());
+  }
 
   const App = ({ children }) => (
     <Provider store={store}>
